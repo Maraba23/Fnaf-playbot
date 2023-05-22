@@ -62,7 +62,7 @@ def lookRight():
     global facingLeft
     if facingLeft:
         pag.moveTo(1279, 360)
-        time.sleep(1.0)
+        time.sleep(1.2)
         facingLeft = False
 
 def leftDoor():
@@ -104,6 +104,7 @@ def checkTronic(tronic):
                 bonnieAtDoor = pag.locateOnScreen("bonnieOutside.png", grayscale=True, confidence=0.8) is not None
 
             if bonnieAtDoor:
+                print("Bonnie still at door")
                 leftLightOn()
                 time.sleep(0.1)
                 leftlightOff()
@@ -112,7 +113,10 @@ def checkTronic(tronic):
         else:  # Check if Bonnie has just arrived at the door
             bonnieAtDoor = pag.locateOnScreen("bonnieAtDoor.png", grayscale=True, confidence=0.6) is not None
             if not bonnieAtDoor:
+                print("Bonnie not at door")
                 bonnieAtDoor = pag.locateOnScreen("bonnieAtDoor.png", grayscale=True, confidence=0.6) is not None
+            else:
+                print("Bonnies at door: " + str(bonnieAtDoor) + "\nLets stop him")
         bonnie = bonnieAtDoor
         return bonnieAtDoor
     else:
@@ -123,6 +127,7 @@ def checkTronic(tronic):
                 chicaAtDoor = pag.locateOnScreen("chicaAtDoor.png", grayscale=True, confidence=0.5) is not None
 
             if chicaAtDoor:
+                print("Chica still at door")
                 rightLightOn()
                 time.sleep(0.1)
                 rightLightOff()
@@ -130,31 +135,38 @@ def checkTronic(tronic):
         else:  # Check if Chica has just arrived at the door
             chicaAtDoor = pag.locateOnScreen("chicaAtDoor.png", grayscale=True, confidence=0.6) is not None
             if not chicaAtDoor:
+                print("Chica not at door")
                 chicaAtDoor = pag.locateOnScreen("chicaAtDoor.png", grayscale=True, confidence=0.6) is not None
+            else:
+                print("Chica at door: " + str(chicaAtDoor) + "\nLets stop her")
         chica = chicaAtDoor
         time.sleep(0.1)  # Delay, the game doesn't like responses too fast for right door
         return chicaAtDoor
 
 
 def checkBonnie():
+    print("Checking Bonnie...")
     leftLightOn()
     if bonnie != checkTronic(BONNIE):
         leftDoor()
     leftlightOff()
 
 def checkChica():
+    print("Checking Chica...")
     rightLightOn()
     if chica != checkTronic(CHICA):
         rightDoor()
     rightLightOff()
 
 def checkChica2():
+    print("Checking Chica...")
     rightLightOn()
     if chica != checkTronic(CHICA):
         pass
     rightLightOff()
 
 def checkFoxy():
+    print("Checking Foxy...")
     # Foxy is there
     global eyes
     if eyes:
@@ -214,7 +226,8 @@ def autoPlay():
         time.sleep(6)
 
         #timeout = 465  # 7 min 45 s
-        timeout = 430  # 7 min 10 s
+        timeout = 420  # 7 min 10 s 430
+        #timeout = 455  # 7 min 35 s
         time_foxy = 0
         start = time.time()
         view_foxy = 0
@@ -228,6 +241,7 @@ def autoPlay():
             time.sleep(0.4)
             # If Foxy left cove, change to west hall and close left door (if open)
             if checkFoxy():
+                print("Fuck, INCOMING FOXY")
                 stopFoxy()
                 toggleCam()
                 if not chica:
@@ -238,6 +252,8 @@ def autoPlay():
                     bonnie = True
                     time_foxy = 100
                     view_foxy = time.time()
+                    print("Take that Foxy")
+                print("Door is already close, uff")
                 time.sleep(1.5)
             else:
                 toggleCam()
@@ -251,6 +267,7 @@ def autoPlay():
             if pag.locateOnScreen("stars.png", grayscale=True, confidence=0.5) is not None:  # We are on the title screen
                 break
         # Stop everything
+        print("Lets pray for God that nothing happens")
         time.sleep(0.1)
         if bonnie:
             leftDoor()
