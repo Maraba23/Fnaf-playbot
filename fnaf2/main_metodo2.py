@@ -5,8 +5,10 @@ import time
 import pyautogui as pag
 from PIL import Image, ImageDraw
 
-# função para realizar a busca de imagem usando OpenCV
-def locate_on_screen(image, confidence=0.5):
+orb = cv2.ORB_create()
+bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+
+def locate_on_screen(image, dist_threshold=30):
     # captura a tela
     screenshot = np.array(pag.screenshot())
     # converte a imagem para escala de cinza
@@ -14,19 +16,24 @@ def locate_on_screen(image, confidence=0.5):
     
     # carrega a imagem de busca
     template = cv2.imread(image, 0)
+    
+    # calcula os pontos-chave e descritores para ambos a captura de tela e a imagem do template
+    kp_screenshot, des_screenshot = orb.detectAndCompute(screenshot_gray, None)
+    kp_template, des_template = orb.detectAndCompute(template, None)
 
-    # realiza a correspondência de modelo na imagem
-    res = cv2.matchTemplate(screenshot_gray, template, cv2.TM_CCOEFF_NORMED)
-    
-    # localiza os locais onde a correspondência excede o limiar de confiança
-    loc = np.where(res >= confidence)
-    
-    # se encontrarmos um match, retornamos as coordenadas do primeiro ponto
-    if len(loc[0]) > 0:
-        return (loc[1][0], loc[0][0])
-    
+    # realiza a correspondência dos descritores
+    matches = bf.match(des_template, des_screenshot)
+
+    # ordena os matches pela distância
+    matches = sorted(matches, key = lambda x: x.distance)
+
+    # se encontrarmos um match e a distância for abaixo do limiar, retornamos as coordenadas do primeiro ponto
+    if len(matches) > 0 and matches[0].distance < dist_threshold:
+        return kp_screenshot[matches[0].trainIdx].pt
+
     # se não encontrarmos um match, retornamos None
     return None
+
 
 def toggleCam():
     pag.moveTo(1348, 930)
@@ -47,10 +54,10 @@ def leftLight():
     pag.moveTo(285, 605)
     time.sleep(0.4)
     pag.mouseDown()
-    toy_chica = locate_on_screen('ChicaInTheVent.png', confidence=0.5)
-    time.sleep(0.6)
+    toy_chica = locate_on_screen('ChicaInTheVent.png', dist_threshold=10)
+    time.sleep(1)
     print('toy_chica: ', toy_chica)
-    ballon_boy = locate_on_screen('BallonBoyInTheVent.png', confidence=0.6)
+    ballon_boy = locate_on_screen('BallonBoyInTheVent.png', dist_threshold=10)
     print('ballon_boy', ballon_boy)
     # time.sleep(1)
     pag.mouseUp()
@@ -60,9 +67,9 @@ def rightLight():
     pag.moveTo(1622, 605)
     time.sleep(0.4)
     pag.mouseDown()
-    toy_bonnie = locate_on_screen('BonnieInTheVent.png', confidence=0.6)
+    toy_bonnie = locate_on_screen('BonnieInTheVent.png', dist_threshold=10)
     print('toy_bonnie: ', toy_bonnie)
-    mangle = locate_on_screen('MangleInTheVent.png', confidence=0.6)
+    mangle = locate_on_screen('MangleInTheVent.png', dist_threshold=10)
     print('mangle: ', mangle)
     time.sleep(0.6)
     pag.mouseUp()
@@ -75,7 +82,7 @@ def useMask():
 
 def lightFoxy():
     pag.keyDown('ctrl')
-    foxy = locate_on_screen('foxyInTheHallway.png', confidence=0.6)
+    foxy = locate_on_screen('foxyInTheHallway.png', dist_threshold=280)
     time.sleep(0.5)
     pag.keyUp('ctrl')
     print('foxy: ', foxy)
@@ -90,10 +97,10 @@ def removeFoxy():
         time.sleep(0.01)
 
 def checkRoom():
-    toy_freedy = locate_on_screen('ToyFreedyInTheRoom.png', confidence=0.6)
-    withered_freedy = locate_on_screen('FreedyInTheRoom.png', confidence=0.6)
-    withered_bonnie = locate_on_screen('BonnieInTheRoom.png', confidence=0.8)
-    withered_chica = locate_on_screen('ChicaInTheRoom.png', confidence=0.6)
+    toy_freedy = locate_on_screen('ToyFreedyInTheRoom.png', dist_threshold=10)
+    withered_freedy = locate_on_screen('FreedyInTheRoom.png', dist_threshold=10)
+    withered_bonnie = locate_on_screen('BonnieInTheRoom.png', dist_threshold=10)
+    withered_chica = locate_on_screen('ChicaInTheRoom.png', dist_threshold=10)
     print('toy_freedy: ', toy_freedy)
     print('withered_freedy: ', withered_freedy)
     print('withered_bonnie: ', withered_bonnie)
@@ -126,7 +133,7 @@ while keyboard.is_pressed('x') is False:
     if lightFoxy():
         removeFoxy()
 
-    game_over = locate_on_screen('game_over.png', confidence=0.6)
+    game_over = locate_on_screen('game_over.png')
     if game_over is not None:
         print('game over')
         break
