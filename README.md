@@ -1,1 +1,3 @@
-# fnaf1-bot
+# Five Nights at Freddy's - playbot
+
+developing...
