@@ -5,6 +5,7 @@ from PIL import Image, ImageDraw
 import cv2
 import numpy as np
 import screeninfo
+import asyncio
 
 
 # Configurações da tela
@@ -127,18 +128,18 @@ def removeFoxy():
         time.sleep(0.05)
 
 def checkRoom():
-    withered_bonnie = check_anims('BonnieInTheRoom.png', 'withered_bonnie', confidence=0.64)
-    if withered_bonnie:
+    withereds = check_anims('BonnieInTheRoom.png', 'withereds', confidence=0.64)
+    if withereds:
         return True
     toy_freedy = check_anims('ToyFreedyInTheRoom.png', 'toy_freedy')
     if toy_freedy:
         return True
-    withered_freedy = check_anims('FreedyInTheRoom.png', 'withered_freedy')
-    if withered_freedy:
-        return True
-    withered_chica = check_anims('ChicaInTheRoom.png', 'withered_chica')
-    if withered_chica:
-        return True
+    # withered_freedy = check_anims('FreedyInTheRoom.png', 'withered_freedy')
+    # if withered_freedy:
+    #     return True
+    # withered_chica = check_anims('ChicaInTheRoom.png', 'withered_chica')
+    # if withered_chica:
+    #     return True
     return False
 
 
@@ -165,14 +166,17 @@ def checkRoom():
 
 # inicializador
 inicio = True
+camera = False
 time.sleep(10)
 while keyboard.is_pressed('x') is False:
     toggleCam()
+    camera = not camera
     if inicio:
         moveToPuppet()
         inicio = False
     doMusicBox()
     toggleCam()
+    camera = not camera
     if checkRoom():
         useMask()
         time.sleep(7)
