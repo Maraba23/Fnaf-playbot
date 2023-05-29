@@ -84,7 +84,7 @@ def doMusicBox():
             time.sleep(0.5)
             doMusicBox()
             break
-        time.sleep(0.1)
+        time.sleep(0.3)
     pag.mouseUp()
 
 def leftLight():
@@ -181,6 +181,8 @@ while keyboard.is_pressed('x') is False:
         useMask()
         time.sleep(7)
         useMask()
+    if lightFoxy():
+        removeFoxy()
     if leftLight():
         useMask()
         time.sleep(6.5)
@@ -190,8 +192,6 @@ while keyboard.is_pressed('x') is False:
         useMask()
         time.sleep(6.5)
         useMask()
-    if lightFoxy():
-        removeFoxy()
     game_over = pag.locateOnScreen('game_over.png', grayscale=True, confidence=0.6)
     if game_over is not None:
         print('game over')
